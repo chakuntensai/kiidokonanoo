@@ -37,93 +37,81 @@
       font-weight: bold;
       margin-right: 4px;
     }
-    .shift { background: #ffd; border: 1px solid #cc0; }
-    .fn { background: #cff; border: 1px solid #09c; }
-
-    .keyboard-container {
-      position: relative;
+    .shift {
+      background: #ffd;
+      border: 1px solid #cc0;
+    }
+    .fn {
+      background: #cff;
+      border: 1px solid #09c;
+    }
+    .position {
+      margin-top: 0.5em;
+      color: #555;
+    }
+    .keyboard-img {
       max-width: 100%;
       margin-top: 1em;
-    }
-    .keyboard-container img {
-      width: 100%;
-      height: auto;
-    }
-    #highlight {
-      position: absolute;
-      border: 3px solid red;
-      border-radius: 6px;
-      pointer-events: none;
-      display: none;
+      border: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
   <h1>🔍 キーどこ？</h1>
-  <p>探したい記号やキーの名前を入力してね（例：「！」「home」「Caps Lock」「絵文字」など）：</p>
-  <input type="text" id="search" placeholder="例：？、!”Home”、Caps Lock、Emojiなど" />
-
+  <p>探したい記号やキーの名前を入力してね（例：「！」「home」「Caps Lock」「emoji」など）：</p>
+  <input type="text" id="search" placeholder="例：？、！”Home”、Caps Lockなど" />
   <div class="result" id="result"></div>
 
-  <div class="keyboard-container">
-    <img id="keyboard-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA1YAAAEACAYAAACwFOeoAAEAAElEQVR4nGz9e7B1XXbehf3GmHOtfc..." />
-    <div id="highlight"></div>
-  </div>
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAEaCAYAAADpDjOKAAEAAElEQVR4nGT9ebB1W3bVB/7mWmufc+79utfly/eyT2UnCQkyJSEhIYwkBDKWLdxiG7ChHLipqIqo4o9yuCIqbBNUVNjGFeVyWTZVFriKRrIFckNEhR0yxsLGSKAGhJCQEK" class="keyboard-img" alt="キーボード画像" />
 
   <script>
-    const normalize = str => str.trim().toLowerCase().replace(/[“”"＜＞]/g, m => ({
-      "“": "\"", "”": "\"", "＜": "<", "＞": ">"
-    }[m] || m));
-
     const keyMap = {
-      "！": { key: "1", shift: true, pos: "上段左", img: {x: 6.2, y: 7, w: 3.6, h: 11} },
-      "？": { key: "/", shift: true, pos: "右下", img: {x: 83.4, y: 55, w: 3.6, h: 11} },
-      "、": { key: "ね", shift: false, pos: "右下", img: {x: 76, y: 55, w: 3.6, h: 11} },
-      "。": { key: "る", shift: false, pos: "右下", img: {x: 79.7, y: 55, w: 3.6, h: 11} },
-      "＠": { key: "2", shift: true, pos: "上段左", img: {x: 13.6, y: 7, w: 3.6, h: 11} },
-      "<": { key: "ね", shift: true, pos: "右下", img: {x: 76, y: 55, w: 3.6, h: 11} },
-      ">": { key: "め", shift: true, pos: "右下", img: {x: 87.2, y: 55, w: 3.6, h: 11} },
-      "/": { key: "/", shift: false, pos: "右下", img: {x: 83.4, y: 55, w: 3.6, h: 11} },
-      ",": { key: "ね", shift: false, pos: "右下", img: {x: 76, y: 55, w: 3.6, h: 11} },
-      "caps lock": { key: "Caps Lock", shift: false, pos: "左下", img: {x: 0.5, y: 43, w: 6.8, h: 11} },
-      "shift": { key: "Shift", shift: false, pos: "左右下", img: {x: 0.5, y: 55, w: 10.5, h: 11} },
-      "space": { key: "Space", shift: false, pos: "中央下", img: {x: 36, y: 68.5, w: 26, h: 11} },
-      "home": { key: "7", fn: true, pos: "テンキー上", img: {x: 73.2, y: 29, w: 3.6, h: 11} },
-      "emoji": { key: "Windows + .", fn: false, pos: "左下＋任意", img: {x: 19.7, y: 68.5, w: 3.6, h: 11} },
-      "windows": { key: "Windows", fn: false, pos: "左下", img: {x: 19.7, y: 68.5, w: 3.6, h: 11} },
-      ".": { key: "る", shift: false, pos: "右下", img: {x: 79.7, y: 55, w: 3.6, h: 11} }
+      "！": { key: "1", shift: true },
+      "!": { key: "1", shift: true },
+      "？": { key: "/", shift: true },
+      "?": { key: "/", shift: true },
+      "、": { key: "ね", shift: false },
+      ",": { key: "ね", shift: false },
+      "。": { key: "る", shift: false },
+      ".": { key: "る", shift: false },
+      "＜": { key: "ね", shift: true },
+      "<": { key: "ね", shift: true },
+      "＞": { key: "め", shift: true },
+      ">": { key: "め", shift: true },
+      "/": { key: "/", shift: false },
+      "＠": { key: "2", shift: true },
+      "@": { key: "2", shift: true },
+      "caps lock": { key: "Caps Lock", fn: false, position: "左側" },
+      "capslock": { key: "Caps Lock", fn: false, position: "左側" },
+      "space": { key: "スペース", fn: false, position: "下段中央" },
+      "スペース": { key: "スペース", fn: false, position: "下段中央" },
+      "shift": { key: "Shift", fn: false, position: "左右にある" },
+      "home": { key: "Home", fn: true, position: "テンキー上の7にある場合も" },
+      "end": { key: "End", fn: true, position: "テンキー上の1にある場合も" },
+      "insert": { key: "Ins", fn: true, position: "テンキーの0キーにあることも" },
+      "delete": { key: "Del", fn: true, position: "テンキーの . にあることも" },
+      "emoji": { key: "Windows + .", fn: false, position: "絵文字一覧が開きます" },
+      "絵文字": { key: "Windows + .", fn: false, position: "絵文字一覧が開きます" }
     };
 
     const searchInput = document.getElementById("search");
     const result = document.getElementById("result");
-    const highlight = document.getElementById("highlight");
 
     searchInput.addEventListener("input", () => {
-      const input = normalize(searchInput.value);
-      if (input in keyMap) {
-        const info = keyMap[input];
+      const input = searchInput.value.trim().toLowerCase();
+      const info = keyMap[input];
+      if (info) {
         const parts = [];
         if (info.shift) parts.push('<span class="key shift">Shift</span>');
         if (info.fn) parts.push('<span class="key fn">Fn</span>');
         parts.push(`<span class="key">${info.key}</span>`);
 
         result.innerHTML = `
-          <div class="key-info">「${searchInput.value}」は ${parts.join(" + ")} のキーにあります。<br />
-          位置の目安：${info.pos}</div>
+          <div class="key-info">「${searchInput.value}」は ${parts.join(" + ")} のキーにあります。</div>
+          ${info.position ? `<div class="position">位置の目安：${info.position}</div>` : ""}
         `;
-
-        if (info.img) {
-          highlight.style.left = info.img.x + "%";
-          highlight.style.top = info.img.y + "%";
-          highlight.style.width = info.img.w + "%";
-          highlight.style.height = info.img.h + "%";
-          highlight.style.display = "block";
-        } else {
-          highlight.style.display = "none";
-        }
       } else {
         result.innerHTML = "<div class='key-info'>そのキーはまだ登録されていません。</div>";
-        highlight.style.display = "none";
       }
     });
   </script>
