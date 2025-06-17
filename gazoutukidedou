@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>キーどこ？ - JISキーボード記号検索ツール</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1em;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+    .result {
+      background: #fff;
+      padding: 1em;
+      border-radius: 5px;
+      box-shadow: 0 0 5px #ccc;
+    }
+    .key-info {
+      font-size: 1.1em;
+      margin: 10px 0;
+    }
+    .key {
+      display: inline-block;
+      padding: 5px 10px;
+      background: #eee;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-right: 4px;
+    }
+    .shift { background: #ffd; border: 1px solid #cc0; }
+    .fn { background: #cff; border: 1px solid #09c; }
+
+    .keyboard-container {
+      position: relative;
+      max-width: 100%;
+      margin-top: 1em;
+    }
+    .keyboard-container img {
+      width: 100%;
+      height: auto;
+    }
+    #highlight {
+      position: absolute;
+      border: 3px solid red;
+      border-radius: 6px;
+      pointer-events: none;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 キーどこ？</h1>
+  <p>探したい記号やキーの名前を入力してね（例：「！」「home」「Caps Lock」「絵文字」など）：</p>
+  <input type="text" id="search" placeholder="例：？、!”Home”、Caps Lock、Emojiなど" />
+
+  <div class="result" id="result"></div>
+
+  <div class="keyboard-container">
+    <img id="keyboard-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA1YAAAEACAYAAACwFOeoAAEAAElEQVR4nGz9e7B1XXbehf3GmHOtfc..." />
+    <div id="highlight"></div>
+  </div>
+
+  <script>
+    const normalize = str => str.trim().toLowerCase().replace(/[“”"＜＞]/g, m => ({
+      "“": "\"", "”": "\"", "＜": "<", "＞": ">"
+    }[m] || m));
+
+    const keyMap = {
+      "！": { key: "1", shift: true, pos: "上段左", img: {x: 6.2, y: 7, w: 3.6, h: 11} },
+      "？": { key: "/", shift: true, pos: "右下", img: {x: 83.4, y: 55, w: 3.6, h: 11} },
+      "、": { key: "ね", shift: false, pos: "右下", img: {x: 76, y: 55, w: 3.6, h: 11} },
+      "。": { key: "る", shift: false, pos: "右下", img: {x: 79.7, y: 55, w: 3.6, h: 11} },
+      "＠": { key: "2", shift: true, pos: "上段左", img: {x: 13.6, y: 7, w: 3.6, h: 11} },
+      "<": { key: "ね", shift: true, pos: "右下", img: {x: 76, y: 55, w: 3.6, h: 11} },
+      ">": { key: "め", shift: true, pos: "右下", img: {x: 87.2, y: 55, w: 3.6, h: 11} },
+      "/": { key: "/", shift: false, pos: "右下", img: {x: 83.4, y: 55, w: 3.6, h: 11} },
+      ",": { key: "ね", shift: false, pos: "右下", img: {x: 76, y: 55, w: 3.6, h: 11} },
+      "caps lock": { key: "Caps Lock", shift: false, pos: "左下", img: {x: 0.5, y: 43, w: 6.8, h: 11} },
+      "shift": { key: "Shift", shift: false, pos: "左右下", img: {x: 0.5, y: 55, w: 10.5, h: 11} },
+      "space": { key: "Space", shift: false, pos: "中央下", img: {x: 36, y: 68.5, w: 26, h: 11} },
+      "home": { key: "7", fn: true, pos: "テンキー上", img: {x: 73.2, y: 29, w: 3.6, h: 11} },
+      "emoji": { key: "Windows + .", fn: false, pos: "左下＋任意", img: {x: 19.7, y: 68.5, w: 3.6, h: 11} },
+      "windows": { key: "Windows", fn: false, pos: "左下", img: {x: 19.7, y: 68.5, w: 3.6, h: 11} },
+      ".": { key: "る", shift: false, pos: "右下", img: {x: 79.7, y: 55, w: 3.6, h: 11} }
+    };
+
+    const searchInput = document.getElementById("search");
+    const result = document.getElementById("result");
+    const highlight = document.getElementById("highlight");
+
+    searchInput.addEventListener("input", () => {
+      const input = normalize(searchInput.value);
+      if (input in keyMap) {
+        const info = keyMap[input];
+        const parts = [];
+        if (info.shift) parts.push('<span class="key shift">Shift</span>');
+        if (info.fn) parts.push('<span class="key fn">Fn</span>');
+        parts.push(`<span class="key">${info.key}</span>`);
+
+        result.innerHTML = `
+          <div class="key-info">「${searchInput.value}」は ${parts.join(" + ")} のキーにあります。<br />
+          位置の目安：${info.pos}</div>
+        `;
+
+        if (info.img) {
+          highlight.style.left = info.img.x + "%";
+          highlight.style.top = info.img.y + "%";
+          highlight.style.width = info.img.w + "%";
+          highlight.style.height = info.img.h + "%";
+          highlight.style.display = "block";
+        } else {
+          highlight.style.display = "none";
+        }
+      } else {
+        result.innerHTML = "<div class='key-info'>そのキーはまだ登録されていません。</div>";
+        highlight.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
